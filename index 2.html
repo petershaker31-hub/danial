@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>من سيربح المليون؟ الفتية الثلاثة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1b0f3a;--bg2:#2d1760;--gold:#ffc83d;--fire:#ff6a2b;--ok:#2fb86b;--bad:#e5484d;--ink:#fff7e6;--card:#3a2380}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:Cairo,Tahoma,Arial,sans-serif;color:var(--ink);background:radial-gradient(circle at 50% 120%,#7a2a10 0,var(--bg2) 45%,var(--bg) 100%) fixed;font-size:18px}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.screen{display:none;max-width:980px;margin:0 auto;padding:16px}
+.screen.on{display:block}
+#start,#end{text-align:center;padding-top:8vh}
+h1{font-size:clamp(30px,7vw,54px);font-weight:900;color:var(--gold);margin:0 0 8px;line-height:1.3}
+.sub{font-size:clamp(18px,3.5vw,24px);margin:0 0 28px}
+.fire{font-size:72px;line-height:1;animation:flick 1.2s infinite alternate}
+@keyframes flick{from{transform:scale(1) rotate(-3deg)}to{transform:scale(1.12) rotate(3deg)}}
+.big{background:linear-gradient(var(--gold),#f0a500);color:#3b1d00;border:0;border-radius:40px;padding:14px 44px;font-size:24px;font-weight:900;box-shadow:0 6px 0 #a56b00}
+.big:active{transform:translateY(4px);box-shadow:0 2px 0 #a56b00}
+.rules{max-width:560px;margin:24px auto 0;font-size:16px;opacity:.9}
+#game.on{display:grid;grid-template-columns:1fr 190px;gap:16px}
+.main{min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.lifes{display:flex;gap:8px}
+.life{width:64px;height:64px;border-radius:50%;border:3px solid var(--gold);background:var(--card);color:var(--gold);font-weight:900;font-size:13px;line-height:1.1;padding:2px}
+.life:disabled{opacity:.35;text-decoration:line-through;cursor:default}
+.prize{font-weight:900;color:var(--gold);font-size:20px}
+.qbox{background:linear-gradient(var(--card),#27155c);border:3px solid var(--gold);border-radius:18px;padding:22px 18px;text-align:center;font-size:clamp(20px,4.2vw,28px);font-weight:700;min-height:110px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.ans{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.a{background:var(--card);color:var(--ink);border:3px solid #7d62d6;border-radius:40px;padding:12px 18px;font-size:clamp(17px,3.6vw,22px);font-weight:700;text-align:right;display:flex;gap:10px;align-items:center;transition:background .2s}
+.a b{color:var(--gold)}
+.a:hover:not(:disabled){background:#5233b0;border-color:var(--gold)}
+.a.sel{background:var(--gold);color:#3b1d00}.a.sel b{color:#3b1d00}
+.a.right{background:var(--ok);border-color:#fff;color:#fff}.a.right b{color:#fff}
+.a.wrong{background:var(--bad);border-color:#fff;color:#fff;animation:shake .4s}.a.wrong b{color:#fff}
+.a.gone{visibility:hidden}
+@keyframes shake{25%{transform:translateX(8px)}75%{transform:translateX(-8px)}}
+.note{margin-top:14px;background:#00000055;border-radius:14px;padding:12px 16px;min-height:20px;font-size:17px}
+.note:empty{display:none}
+.bars{display:flex;gap:10px;align-items:flex-end;height:90px;margin-top:8px}
+.bar{flex:1;background:var(--fire);border-radius:6px 6px 0 0;position:relative;min-height:4px;text-align:center;font-size:13px}
+.bar span{position:absolute;top:-22px;right:0;left:0}
+.bl{display:flex;gap:10px}.bl div{flex:1;text-align:center;font-weight:900;color:var(--gold)}
+.next{margin-top:12px;display:none}.next.on{display:inline-block}
+.ladder{list-style:none;margin:0;padding:10px;background:#00000055;border-radius:14px;display:flex;flex-direction:column-reverse;gap:4px;align-self:start}
+.ladder li{padding:4px 10px;border-radius:8px;display:flex;justify-content:space-between;font-weight:700;font-size:15px}
+.ladder li.safe{color:var(--gold)}
+.ladder li.now{background:var(--gold);color:#3b1d00}
+.ladder li.done{opacity:.5}
+#end .msg{font-size:22px;max-width:600px;margin:0 auto 24px}
+.conf{position:fixed;top:-20px;width:10px;height:14px;animation:fall linear forwards;z-index:9}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+@media(max-width:720px){#game.on{grid-template-columns:1fr}.ladder{display:none}.ans{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+
+<section id="start" class="screen on">
+  <div class="fire" aria-hidden="true">🔥</div>
+  <h1>من سيربح المليون؟</h1>
+  <p class="sub">قصة الفتية الثلاثة في أتون النار – سفر دانيال ٣</p>
+  <button class="big" id="go">ابدأ اللعب</button>
+  <p class="rules">١٢ سؤالاً من السهل إلى الصعب. معك ٣ مساعدات: حذف إجابتين، رأي الجمهور، واتصال بصديق. عند سؤال ٥ وسؤال ١٠ تصبح جائزتك مضمونة!</p>
+</section>
+
+<section id="game" class="screen">
+  <div class="main">
+    <div class="top">
+      <div class="prize" id="prize"></div>
+      <div class="lifes">
+        <button class="life" id="l5050" title="حذف إجابتين">٥٠:٥٠</button>
+        <button class="life" id="lAud" title="رأي الجمهور">الجمهور</button>
+        <button class="life" id="lFr" title="اتصال بصديق">صديق</button>
+      </div>
+    </div>
+    <div class="qbox" id="q"></div>
+    <div class="ans" id="ans"></div>
+    <div class="note" id="note" aria-live="polite"></div>
+    <button class="big next" id="next">السؤال التالي</button>
+  </div>
+  <ol class="ladder" id="ladder" aria-label="سلم الجوائز"></ol>
+</section>
+
+<section id="end" class="screen">
+  <div class="fire" id="eIcon" aria-hidden="true">🔥</div>
+  <h1 id="eTitle"></h1>
+  <p class="msg" id="eMsg"></p>
+  <button class="big" id="again">العب مرة أخرى</button>
+</section>
+
+<script>
+const PRIZES=[100,200,300,500,1000,2000,4000,8000,16000,32000,64000,1000000];
+const SAFE=[4,9];
+const Q=[
+{q:"من هو الملك الذي صنع تمثالاً من ذهب في سفر دانيال؟",a:["داريوس","نبوخذنصر","سليمان","هيرودس"],c:1,i:"الملك نبوخذنصر ملك بابل صنع التمثال (دانيال ٣: ١)."},
+{q:"في أي مدينة كان الفتية الثلاثة يعيشون عندما حدثت القصة؟",a:["أورشليم","مصر","بابل","نينوى"],c:2,i:"كان الفتية في بابل وكانوا من شعب الله المسبيين، وقد عيّنهم الملك على أعمال ولاية بابل."},
+{q:"ما اسم «عبدنغو» الأصلي بالعبرية؟",a:["حننيا","ميشائيل","دانيال","عزريا"],c:3,i:"أسماؤهم العبرية: حننيا (شدرخ)، ميشائيل (ميشخ)، عزريا (عبدنغو)."},
+{q:"كم كان ارتفاع التمثال الذهبي؟",a:["ستين ذراعاً","عشرة أذرع","مئة ذراع","ثلاثين ذراعاً"],c:0,i:"ارتفاعه ستون ذراعاً وعرضه ست أذرع (دانيال ٣: ١)."},
+{q:"ماذا أمر الملك الجميع أن يفعلوا عند سماع صوت الموسيقى؟",a:["يرقصوا","يغنّوا","يصلّوا لله","يسجدوا للتمثال"],c:3,i:"أمر أن كل من يسمع الموسيقى يخر ويسجد للتمثال الذهب (دانيال ٣: ٥)."},
+{q:"ماذا قال الملك إنه سيحدث لمن لا يسجد للتمثال؟",a:["يُطرد من البلاد","يُلقى في أتون نار متقدة","يُسجن سنة","يدفع غرامة"],c:1,i:"كل من لا يخرّ ويسجد يُلقى في وسط أتون النار المتقدة (دانيال ٣: ٦)."},
+{q:"لماذا رفض الفتية الثلاثة السجود للتمثال؟",a:["كانوا متعبين","لم يروا التمثال","لأنهم يعبدون الله وحده","كانوا خائفين من الموسيقى"],c:2,i:"قالوا للملك إنهم لا يعبدون آلهته ولا يسجدون للتمثال، فالله وحده هو إلههم (دانيال ٣: ١٨)."},
+{q:"قال الفتية للملك إن إلههم قادر أن ينقذهم. ماذا قالوا أيضاً؟",a:["سنهرب من الأتون","حتى لو لم ينقذنا لن نعبد آلهتك","سنسجد هذه المرة فقط","سنطلب مالاً"],c:1,i:"إيمانهم لم يكن مشروطاً: حتى لو لم ينقذهم الله فلن يسجدوا (دانيال ٣: ١٧-١٨)."},
+{q:"كم مرة زاد الملك في تسخين الأتون عن المعتاد؟",a:["ضعفين","ثلاثة أضعاف","سبعة أضعاف","عشرة أضعاف"],c:2,i:"أمر أن يُحمى الأتون سبعة أضعاف ما كان يُحمى (دانيال ٣: ١٩)."},
+{q:"ماذا حدث للرجال الأقوياء الذين ألقوا الفتية في الأتون؟",a:["هربوا","سقطوا نائمين","اشتعلت الأتون عليهم وماتوا","لم يحدث لهم شيء"],c:2,i:"لشدة حرارة الأتون قتل لهيب النار الرجال الذين رفعوا الفتية (دانيال ٣: ٢٢)."},
+{q:"كم رجلاً رأى الملك يتمشى في وسط النار؟",a:["ثلاثة","أربعة","اثنين","خمسة"],c:1,i:"رأى الملك أربعة رجال محلولين يتمشون في النار، ومنظر الرابع شبه ابن الآلهة (دانيال ٣: ٢٥)."},
+{q:"ماذا حدث لثياب الفتية وشعرهم بعد خروجهم من النار؟",a:["احترقت الثياب","لم تمسّهم النار ولا رائحة نار","اسودّ شعرهم","تغيّرت وجوههم"],c:1,i:"لم تكن للنار قوة على أجسامهم ولا احترقت شعرة من رؤوسهم ولا أثر لرائحة النار (دانيال ٣: ٢٧)."},
+{q:"ماذا قال الملك نبوخذنصر في نهاية القصة؟",a:["تبارك إله شدرخ وميشخ وعبدنغو","سأبني تمثالاً أكبر","اطردوهم من بابل","سأحرقهم مرة أخرى"],c:0,i:"أعلن الملك أن إلههم هو الذي أرسل ملاكه وأنقذ عبيده الذين اتكلوا عليه، ثم رقّاهم (دانيال ٣: ٢٨-٣٠)."}
+];
+const $=id=>document.getElementById(id);
+const L=['أ','ب','ج','د'];
+let n,used,locked,hidden;
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id))}
+const money=v=>v.toLocaleString('ar-EG')+' جنيه';
+
+function buildLadder(){
+  $('ladder').innerHTML=PRIZES.map((p,i)=>`<li id="r${i}" class="${SAFE.includes(i)?'safe':''}"><span>${(i+1).toLocaleString('ar-EG')}</span><span>${p.toLocaleString('ar-EG')}</span></li>`).join('');
+}
+function start(){
+  n=0;used={f:0,a:0,r:0};
+  ['l5050','lAud','lFr'].forEach(i=>$(i).disabled=false);
+  buildLadder();show('game');load();
+}
+function load(){
+  locked=false;hidden=[];
+  const d=Q[n];
+  $('q').textContent=d.q;
+  $('note').innerHTML='';
+  $('next').classList.remove('on');
+  $('prize').textContent='السؤال '+(n+1).toLocaleString('ar-EG')+' – '+money(PRIZES[n]);
+  $('ans').innerHTML=d.a.map((t,i)=>`<button class="a" data-i="${i}"><b>${L[i]}</b><span>${t}</span></button>`).join('');
+  document.querySelectorAll('.a').forEach(b=>b.onclick=()=>pick(+b.dataset.i));
+  PRIZES.forEach((_,i)=>{const li=$('r'+i);li.classList.toggle('now',i===n);li.classList.toggle('done',i<n)});
+}
+function pick(i){
+  if(locked)return;locked=true;
+  const btns=[...document.querySelectorAll('.a')];
+  btns[i].classList.add('sel');
+  btns.forEach(b=>b.disabled=true);
+  setTimeout(()=>{
+    const ok=i===Q[n].c;
+    btns[Q[n].c].classList.add('right');
+    if(!ok)btns[i].classList.replace('sel','wrong');
+    $('note').innerHTML=(ok?'✅ إجابة صحيحة! ':'❌ الإجابة الصحيحة هي: '+Q[n].a[Q[n].c]+'. ')+Q[n].i;
+    const nx=$('next');nx.classList.add('on');
+    if(ok){nx.textContent=n===Q.length-1?'النتيجة':'السؤال التالي';nx.onclick=()=>{n++;n>=Q.length?finish(true):load()}}
+    else{nx.textContent='النتيجة';nx.onclick=()=>finish(false)}
+  },1400);
+}
+function finish(won){
+  show('end');
+  if(won){
+    $('eIcon').textContent='🏆';
+    $('eTitle').textContent='مبروك! ربحت المليون!';
+    $('eMsg').textContent='أنت بطل! مثل الفتية الثلاثة، ثبّت إيمانك بالله دائماً، فهو معنا في وسط كل ضيقة.';
+    confetti();
+  }else{
+    let w=0;SAFE.forEach(s=>{if(n>s)w=PRIZES[s]});
+    $('eIcon').textContent='🌟';
+    $('eTitle').textContent='ربحت '+money(w);
+    $('eMsg').textContent='أحسنت! تذكّر دائماً: الله كان مع الفتية في النار وهو معنا أيضاً. حاول مرة أخرى وستفوز!';
+  }
+}
+function confetti(){
+  const cols=['#ffc83d','#ff6a2b','#2fb86b','#6aa8ff','#fff'];
+  for(let i=0;i<70;i++){
+    const e=document.createElement('i');e.className='conf';
+    e.style.left=Math.random()*100+'vw';e.style.background=cols[i%5];
+    e.style.animationDuration=(2+Math.random()*3)+'s';
+    document.body.appendChild(e);setTimeout(()=>e.remove(),5200);
+  }
+}
+function wrongs(){return [0,1,2,3].filter(i=>i!==Q[n].c&&!hidden.includes(i))}
+$('l5050').onclick=()=>{
+  if(locked)return;$('l5050').disabled=true;
+  const w=wrongs().sort(()=>Math.random()-.5).slice(0,2);
+  hidden.push(...w);
+  const b=document.querySelectorAll('.a');w.forEach(i=>{b[i].classList.add('gone');b[i].disabled=true});
+};
+$('lAud').onclick=()=>{
+  if(locked)return;$('lAud').disabled=true;
+  const alive=[0,1,2,3].filter(i=>!hidden.includes(i));
+  let left=100,p={};
+  const cp=50+Math.floor(Math.random()*21);
+  p[Q[n].c]=cp;left-=cp;
+  const o=alive.filter(i=>i!==Q[n].c);
+  o.forEach((i,k)=>{const v=k===o.length-1?left:Math.floor(Math.random()*left*.7);p[i]=v;left-=v});
+  $('note').innerHTML='<b>رأي الجمهور:</b><div class="bars">'+alive.map(i=>`<div class="bar" style="height:${Math.max(p[i],4)}%"><span>${p[i].toLocaleString('ar-EG')}٪</span></div>`).join('')+'</div><div class="bl">'+alive.map(i=>`<div>${L[i]}</div>`).join('')+'</div>';
+};
+$('lFr').onclick=()=>{
+  if(locked)return;$('lFr').disabled=true;
+  $('note').innerHTML='📞 صديقك يقول: «أنا متأكد تقريباً أن الإجابة هي (<b>'+L[Q[n].c]+'</b>) – '+Q[n].a[Q[n].c]+'. لقد تعلمنا هذا في مدارس الأحد!»';
+};
+$('go').onclick=start;
+$('again').onclick=start;
+</script>
+</body>
+</html>
